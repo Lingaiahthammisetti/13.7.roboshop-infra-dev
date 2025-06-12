@@ -6,11 +6,11 @@ terraform {
     }
   }
 
- backend "s3" {
-  bucket = "roboshop-infra-dev-remote-state"
-  key = "roboshop-infra-dev-rds"
-  region = "us-east-1"
-  dynamodb_table="roboshop-infra-dev-locking"
+  backend "s3" {
+    bucket = "roboshop-infra-remote-state"
+    key = "roboshop-infra-dev-rds"
+    region = "us-east-1"
+    dynamodb_table = "roboshop-infra-locking"
   }
 }
 
