@@ -24,7 +24,7 @@ mysql -h roboshop-dev.czn6yzxlcsiv.us-east-1.rds.amazonaws.com -u root -pRoboSho
 ```
 git clone https://github.com/Lingaiahthammisetti/13.17.roboshop-shipping-CI.git
 ```
-* Load the data into mysql
+* logout from mysql and Load the data into mysql on ec2-user.
 ```
 mysql -h roboshop-dev.czn6yzxlcsiv.us-east-1.rds.amazonaws.com -u root -pRoboShop1 < 13.17.roboshop-shipping-CI/db/schema.sql
 ```
@@ -77,7 +77,7 @@ aws iam create-policy \
 * Create Service account. Replace your account ID.
 ```
 eksctl create iamserviceaccount \
---cluster=expense-dev \
+--cluster=roboshop-dev \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
 --attach-policy-arn=arn:aws:iam::484907532817:policy/AWSLoadBalancerControllerIAMPolicy \
