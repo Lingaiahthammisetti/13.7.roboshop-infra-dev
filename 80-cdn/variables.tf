@@ -19,7 +19,6 @@ variable "frontend_tags" {
         Component = "frontend"
     }
 }
-
 variable "zone_name" {
-    default = "lingaiah.online"
+    default = "lithesh.shop"
 }

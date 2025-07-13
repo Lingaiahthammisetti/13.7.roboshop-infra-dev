@@ -19,8 +19,6 @@ variable "ingress_alb_tags" {
         Component = "web-alb"
     }
 }
-
-
 variable "zone_name" {
-    default = "lingaiah.online"
+    default = "lithesh.shop"
 }

@@ -16,9 +16,9 @@ variable "common_tags" {
 
 
 variable "zone_name" {
-    default = "lingaiah.online"
+    default = "lithesh.shop"
 }
 
 variable "zone_id" {
-    default = "Z07608533HHBQHW47XU3F"
+     default ="Z01686671NYDIP6ZJB3D7"
 }

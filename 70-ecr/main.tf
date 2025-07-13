@@ -79,3 +79,12 @@ resource "aws_ecr_repository" "dispatch" {
     scan_on_push = true
   }
 }
+
+resource "aws_ecr_repository" "debug" {
+  name                 = "${var.project_name}/${var.environment}/debug"
+  image_tag_mutability = "MUTABLE"
+  force_delete = true
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
