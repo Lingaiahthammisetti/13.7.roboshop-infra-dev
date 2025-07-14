@@ -10,7 +10,7 @@ for i in  00-vpc/ 10-sg/ 20-bastion/ 30-rds/ 40-eks/ 50-acm/ 60-alb/ 70-ecr/ 80-
 for i in  00-vpc/ 10-sg/ 20-bastion/ 30-rds/ 40-eks/ 50-acm/ 60-alb/ 70-ecr/ 80-cdn/ ; do cd $i; terraform apply -auto-approve; cd .. ; done 
 ```
 ```
-for i in  80-cdn/ 70-ecr/ 60-alb/ 50-acm/ 40-eks/ 30-rds/ 20-bastion/ 10-sg/ 00-vpc/  ; do cd $i; terraform destroy auto-approve; cd .. ; done 
+for i in  80-cdn/ 70-ecr/ 60-alb/ 50-acm/ 40-eks/ 30-rds/ 20-bastion/ 10-sg/ 00-vpc/  ; do cd $i; terraform destroy -auto-approve; cd .. ; done 
 ```
 # Roboshop DEV Infrastructure
 
@@ -21,7 +21,7 @@ for i in  80-cdn/ 70-ecr/ 60-alb/ 50-acm/ 40-eks/ 30-rds/ 20-bastion/ 10-sg/ 00-
 
 Once infra is setup. We need to configure ingress controller to provide internet access to our expense application.
 
-We are using bastion as our EKS client, so it will have
+We are using Bastion as our EKS client, so it will have
 * K9S
 * kubectl
 * helm
@@ -32,7 +32,7 @@ We are using bastion as our EKS client, so it will have
 * Make sure MySQL instance allows port no 3306 from bastion
 
 ```
-mysql -h roboshop-dev.czn6yzxlcsiv.us-east-1.rds.amazonaws.com -u root -pRoboShop1
+mysql -h roboshop-dev.cm9mcies2otg.us-east-1.rds.amazonaws.com -u root -pRoboShop1
 ```
 * Clone shipping component into bastion
 ```
@@ -40,13 +40,13 @@ git clone https://github.com/Lingaiahthammisetti/13.17.roboshop-shipping-CI.git
 ```
 * logout from mysql and Load the data into mysql on ec2-user.
 ```
-mysql -h roboshop-dev.czn6yzxlcsiv.us-east-1.rds.amazonaws.com -u root -pRoboShop1 < 13.17.roboshop-shipping-CI/db/schema.sql
+mysql -h roboshop-dev.cm9mcies2otg.us-east-1.rds.amazonaws.com -u root -pRoboShop1 < 13.17.roboshop-shipping-CI/db/schema.sql
 ```
 ```
-mysql -h roboshop-dev.czn6yzxlcsiv.us-east-1.rds.amazonaws.com -u root -pRoboShop1 < 13.17.roboshop-shipping-CI/db/app-user.sql
+mysql -h roboshop-dev.cm9mcies2otg.us-east-1.rds.amazonaws.com -u root -pRoboShop1 < 13.17.roboshop-shipping-CI/db/app-user.sql
 ```
 ```
-mysql -h roboshop-dev.czn6yzxlcsiv.us-east-1.rds.amazonaws.com -u root -pRoboShop1 < 13.17.roboshop-shipping-CI/db/master-data.sql
+mysql -h roboshop-dev.cm9mcies2otg.us-east-1.rds.amazonaws.com -u root -pRoboShop1 < 13.17.roboshop-shipping-CI/db/master-data.sql
 ```
 
 ## Target group binding
@@ -88,6 +88,13 @@ aws iam create-policy \
     --policy-name AWSLoadBalancerControllerIAMPolicy \
     --policy-document file://iam-policy.json
 ```
+
+* (Optional) Use Existing Policy:
+```
+aws iam list-policies --query "Policies[?PolicyName=='AWSLoadBalancerControllerIAMPolicy'].Arn" --output text
+
+```
+
 * Create Service account. Replace your account ID.
 ```
 eksctl create iamserviceaccount \
@@ -99,11 +106,7 @@ eksctl create iamserviceaccount \
 --region us-east-1 \
 --approve
 ```
-* (Optional) Use Existing Policy:
-```
-aws iam list-policies --query "Policies[?PolicyName=='AWSLoadBalancerControllerIAMPolicy'].Arn" --output text
 
-```
 
 
 * Install aws load balancer controller drivers through helm.
@@ -111,6 +114,20 @@ aws iam list-policies --query "Policies[?PolicyName=='AWSLoadBalancerControllerI
 ```
 helm repo add eks https://aws.github.io/eks-charts
 ```
+
+* Reuse the existing ServiceAccount (recommended if it was created correctly by eksctl)
+```
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=roboshop-dev \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller
+
+```
+
+
+
+
 * Delete the Existing ServiceAccount (Safe if not in Use Yet)
 * If the controller isn’t in active use (or you’re setting it up for the first time), delete the ServiceAccount and reinstall:
 ```

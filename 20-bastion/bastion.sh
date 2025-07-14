@@ -41,6 +41,22 @@ systemctl enable docker
 usermod -aG docker ec2-user
 VALIDATE $? "Docker installation"
 
+#Resize the disk space
+# RHEL-9-DevOps-Practice
+# t3.micro
+# allow-everything
+# 50 GB
+lsblk 
+sudo growpart /dev/nvme0n1 4  #t3.micro used only
+sudo lvextend -l +50%FREE /dev/RootVG/rootVol 
+sudo lvextend -l +50%FREE /dev/RootVG/varVol 
+sudo xfs_growfs / 
+sudo xfs_growfs /var 
+
+
+
+
+
 # eksctl
 curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
 tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
