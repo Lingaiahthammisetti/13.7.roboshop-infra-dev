@@ -1,5 +1,4 @@
 #!/bin/bash
-
 USERID=$(id -u)
 TIMESTAMP=$(date +%F-%H-%M-%S)
 SCRIPT_NAME=$(echo $0 | cut -d "." -f1)
@@ -8,9 +7,6 @@ R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
-
-ARCH=amd64
-PLATFORM=$(uname -s)_$ARCH
 
 VALIDATE(){
    if [ $1 -ne 0 ]
@@ -30,8 +26,6 @@ else
     echo "You are super user."
 fi
 
-dnf install mysql -y
-VALIDATE $? "Install MySQL"
 # docker
 yum install -y yum-utils
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
@@ -41,48 +35,43 @@ systemctl enable docker
 usermod -aG docker ec2-user
 VALIDATE $? "Docker installation"
 
-#Resize the disk space
+# ec2 instance creation request for Docker expense project
+# =============================================
 # RHEL-9-DevOps-Practice
 # t3.micro
 # allow-everything
 # 50 GB
+echo "******* Resize EBS Storage - start **************"
 lsblk 
 sudo growpart /dev/nvme0n1 4  #t3.micro used only
 sudo lvextend -l +50%FREE /dev/RootVG/rootVol 
 sudo lvextend -l +50%FREE /dev/RootVG/varVol 
 sudo xfs_growfs / 
 sudo xfs_growfs /var 
-
-
-
-
+echo "******* Resize EBS Storage - completed **************"
 
 # eksctl
-curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
-tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 mv /tmp/eksctl /usr/local/bin
 eksctl version
 VALIDATE $? "eksctl installation"
 
-
 # kubectl
-curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.31.0/2024-09-12/bin/linux/amd64/kubectl
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.0/2024-05-12/bin/linux/amd64/kubectl
 chmod +x ./kubectl
 mv kubectl /usr/local/bin/kubectl
 VALIDATE $? "kubectl installation"
 
-# kubens
-git clone https://github.com/ahmetb/kubectx /opt/kubectx
-ln -s /opt/kubectx/kubens /usr/local/bin/kubens
-VALIDATE $? "kubens installation"
-
-
-#Helm
+# Helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod 700 get_helm.sh
 ./get_helm.sh
 VALIDATE $? "helm installation"
 
-#k9S
-curl -sS https://webinstall.dev/k9s | bash
-VALIDATE $? "K9S installation"
+dnf install mysql -y
+VALIDATE $? "MySQL installation"
+
+#kubens
+git clone https://github.com/ahmetb/kubectx /opt/kubectx
+ln -s /opt/kubectx/kubens /usr/local/bin/kubens
+VALIDATE $? "kubens installation"

@@ -11,7 +11,7 @@ module "bastion" {
   root_block_device = [{
     encrypted  = false           # Not encrypted
     type       = "gp3"           # gp3 volume type
-    size       = 100              # 10 GiB
+    size       = 100              # 100 GiB
     iops       = 3000            # 3000 IOPS
     throughput = 125             # Optional: default for gp3 is 125 MiB/s
   }]
