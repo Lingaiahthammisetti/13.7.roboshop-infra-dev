@@ -194,6 +194,10 @@ Restart Jenkins once plugins are installed
 
 Now Jenkins is ready to use.
 
+
+# Mysql:  Please load mysql data using shipping-ci.
+
+
 # MongoDB
 
 We use bastion host as Docker server and EKS client.
@@ -288,6 +292,21 @@ Next Create CI and CD for backend services catalogue, cart, user, shipping, paym
 We use multi-branch pipeline for all CI job like catalogue-ci, cart-ci, user-ci, shipping-ci, payment-ci.
 We use pipeline project for all CD job like catalogue-cd, cart-cd, user-cd, shipping-cd, payment-cd.
 We use pipeline project for remaining projects frontend, dispatch, debug.
+
+* Catalogue CI is multi-branch pipeline and there are two branch one is main branch pointing to production. Second is feature branch for frequently doing changes like dev code.
+similarly will do other services also.
+raoli@LAPTOP-VCM4BOUV MINGW64 /c/devops/daws-78s/repos/13.11.roboshop-catalogue-CI (main)
+$ git checkout feature
+
+raoli@LAPTOP-VCM4BOUV MINGW64 /c/devops/daws-78s/repos/13.11.roboshop-catalogue-CI (feature)
+Please update the application code and push into feature branch.
+
+raoli@LAPTOP-VCM4BOUV MINGW64 /c/devops/daws-78s/repos/13.11.roboshop-catalogue-CI (feature)
+$ git add .;git commit -m "roboshop infra dev";git push -u origin feature;
+
+$git checkout main
+
+
 
 First Create aws-creds-dev credentials using AWS Credentials plugin.
 
